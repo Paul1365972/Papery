@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Paul1365972 <paul1365972@gmail.com>
+Date: Fri, 24 Apr 2020 00:00:27 +0200
+Subject: [PATCH] Add nocturnal bees setting
+
+
+diff --git a/src/main/java/io/github/paul1365972/ilblu/IlbluWorldConfig.java b/src/main/java/io/github/paul1365972/ilblu/IlbluWorldConfig.java
+index 84a0e4d353fe0ea1b98f4a2f089a10b8a4b4381c..1f4fd8b68b56fba576a5539746c2bc64bfd8bc20 100644
+--- a/src/main/java/io/github/paul1365972/ilblu/IlbluWorldConfig.java
++++ b/src/main/java/io/github/paul1365972/ilblu/IlbluWorldConfig.java
+@@ -59,4 +59,10 @@ public class IlbluWorldConfig {
+         config.addDefault("world-settings.default." + path, def);
+         return config.getString("world-settings." + worldName + "." + path, config.getString("world-settings.default." + path));
+     }
++    // Papery start - Add nocturnal bees setting
++    public boolean nocturnalBees = false;
++    private void nocturnalBees() {
++        nocturnalBees = getBoolean("nocturnal-bees", nocturnalBees);
++    }
++    //Papery end
+ }
+diff --git a/src/main/java/net/minecraft/server/EntityBee.java b/src/main/java/net/minecraft/server/EntityBee.java
+index dd1d246aeb5bd7c7d284175f936936ececb0f932..ed902f54a5b0960ab9be973c34eef74cc802979d 100644
+--- a/src/main/java/net/minecraft/server/EntityBee.java
++++ b/src/main/java/net/minecraft/server/EntityBee.java
+@@ -238,7 +238,7 @@ public class EntityBee extends EntityAnimal implements EntityBird {
+ 
+     private boolean eI() {
+         if (this.cannotEnterHiveTicks <= 0 && !this.bJ.k() && !this.hasStung()) {
+-            boolean flag = this.canPollinate() || this.world.isRaining() || this.world.isNight() || this.hasNectar();
++            boolean flag = this.canPollinate() || this.world.isRaining() || (this.world.isNight() && !this.world.ilbluConfig.nocturnalBees) || this.hasNectar(); // Papery - Add nocturnal bees setting
+ 
+             return flag && !this.eK();
+         } else {
+diff --git a/src/main/java/net/minecraft/server/TileEntityBeehive.java b/src/main/java/net/minecraft/server/TileEntityBeehive.java
+index 417152d16ca48c008eb6c4159e79ce9b8eb42c46..5219888161acf63fb2632efada5c97861fdc7e83 100644
+--- a/src/main/java/net/minecraft/server/TileEntityBeehive.java
++++ b/src/main/java/net/minecraft/server/TileEntityBeehive.java
+@@ -159,7 +159,7 @@ public class TileEntityBeehive extends TileEntity implements ITickable {
+     private boolean releaseBee(IBlockData iblockdata, NBTTagCompound nbttagcompound, @Nullable List<Entity> list, TileEntityBeehive.ReleaseStatus tileentitybeehive_releasestatus, boolean force) {
+         BlockPosition blockposition = this.getPosition();
+ 
+-        if (!force && (this.world.isNight() || this.world.isRaining()) && tileentitybeehive_releasestatus != TileEntityBeehive.ReleaseStatus.EMERGENCY) {
++        if (!force && ((this.world.isNight() && !this.world.ilbluConfig.nocturnalBees) || this.world.isRaining()) && tileentitybeehive_releasestatus != TileEntityBeehive.ReleaseStatus.EMERGENCY) { // Papery - Add nocturnal bees setting
+             // CraftBukkit end
+             return false;
+         } else {
