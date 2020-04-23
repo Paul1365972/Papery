@@ -51,10 +51,10 @@ jobs:
       - name: Upload API Artifact
         uses: actions/upload-artifact@v1
         with:
-          name: ilblu-api
-          path: Ilblu-API/build/libs/
+          name: papery-api
+          path: Papery-API/build/libs/
       - name: Upload Paperclip Artifact
         uses: actions/upload-artifact@v1
         with:
-          name: ilblu-paperclip
-          path: ilblu-paperclip.jar
+          name: papery-paperclip
+          path: papery-paperclip.jar
